@@ -36,7 +36,7 @@ public class AlunoService {
         repository.deleteById(id);
     }
 
-    public Aluno alterar(Aluno aluno){
+    public Aluno alterar(Aluno aluno){    //* Altera aluno especifico*/
         if(Objects.nonNull(aluno.getId())){
             aluno = repository.save(aluno);
         }else{
