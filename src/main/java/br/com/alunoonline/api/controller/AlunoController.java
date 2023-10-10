@@ -25,6 +25,13 @@ public class AlunoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(alunoCreated);
     }
 
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Aluno> alterar(@RequestBody Aluno aluno){
+        aluno = service.alterar(aluno);
+        return ResponseEntity.ok(aluno);
+    }
+
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<Aluno> findAll(){
@@ -42,6 +49,10 @@ public class AlunoController {
     public void delete(@PathVariable Long id){
         service.delete(id);
     }
+
+    
+
+
 
 
 }

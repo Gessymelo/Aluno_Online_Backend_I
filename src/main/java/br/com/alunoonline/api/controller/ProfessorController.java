@@ -1,5 +1,6 @@
 package br.com.alunoonline.api.controller;
 
+import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.model.Professor;
 import br.com.alunoonline.api.service.ProfessorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,13 @@ public class ProfessorController {
     public ResponseEntity<Professor> create (@RequestBody Professor professor) {
         Professor professorCreated = service.create(professor);
         return ResponseEntity.status(HttpStatus.CREATED).body(professorCreated);
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Professor> alterar(@RequestBody Professor professor){
+        professor = service.alterar(professor);
+        return ResponseEntity.ok(professor);
     }
 
     @GetMapping("/all")
