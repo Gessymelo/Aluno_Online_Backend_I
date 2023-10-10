@@ -1,5 +1,6 @@
 package br.com.alunoonline.api.controller;
 
+import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.model.Disciplina;
 import br.com.alunoonline.api.service.AlunoService;
 import br.com.alunoonline.api.service.DisciplinaService;
@@ -25,6 +26,13 @@ public class DisciplinaController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaCreated);
 
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Disciplina> alterar(@RequestBody Disciplina disciplina){
+        disciplina = service.alterar(disciplina);
+        return ResponseEntity.ok(disciplina);
     }
 
     @GetMapping("/all")
