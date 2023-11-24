@@ -15,44 +15,39 @@ import java.util.Optional;
 public class AlunoController {
 
     @Autowired
-    AlunoService service; //* injentando dependancia do service no controller*/
+    AlunoService service;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) //* indica que a requisiçao foi bem sucediada e quer o novo recurso foi criado. */
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Aluno> create(@RequestBody Aluno aluno){
-        Aluno alunoCreated = service.create(aluno);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(alunoCreated);
+        return ResponseEntity.status(201).body(service.create(aluno));
     }
 
-    @PutMapping
+    @GetMapping(value = "/all")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Aluno> alterar(@RequestBody Aluno aluno){
-        aluno = service.alterar(aluno);
-        return ResponseEntity.ok(aluno);
+    public ResponseEntity<List<Aluno>> findAll(){
+        return ResponseEntity.status(200).body(service.findAll());
     }
 
-    @GetMapping("/all")
+    @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Aluno> findAll(){
-        return service.findall();
+    public ResponseEntity<Aluno> findById(@PathVariable Long id){
+        return ResponseEntity.status(200).body(service.findById(id));
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public Optional<Aluno> findById(@PathVariable Long id){
-        return  service.findById(id);
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Long id){
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
-    
-
-
-
+    @PutMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody Aluno alunoUpdated){
+        Aluno aluno = service.findById(id);
+        return ResponseEntity.status(200).body(service.update(aluno, alunoUpdated));
+    }
 
 }
+

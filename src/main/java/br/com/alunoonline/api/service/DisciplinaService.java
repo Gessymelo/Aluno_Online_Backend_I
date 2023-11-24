@@ -1,46 +1,72 @@
 package br.com.alunoonline.api.service;
 
-import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.model.Disciplina;
 import br.com.alunoonline.api.model.Professor;
 import br.com.alunoonline.api.repository.DisciplinaRepository;
+import br.com.alunoonline.api.repository.ProfessorRepository;
+import br.com.alunoonline.api.exceptions.IntegrityException;
+import br.com.alunoonline.api.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.NotFoundException;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class DisciplinaService {
 
     @Autowired
-    DisciplinaRepository repository;
+    private DisciplinaRepository repository;
 
-    public Disciplina create(Disciplina disciplina) {
-        return repository.save(disciplina);}
+    @Autowired
+    private ProfessorRepository professorRepository;
 
-    public List<Disciplina> findall() {
+    @Transactional
+    public Disciplina create(Disciplina disciplina){
+        if(disciplina.getProfessor().getId() != null) {
+            Professor professor = professorRepository.findById(disciplina.getProfessor().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException(disciplina.getProfessor().getId()));
+
+            disciplina.setProfessor(professor);
+        }
+
+        return repository.save(disciplina);
+    }
+
+    public List<Disciplina> findAll(){
         return repository.findAll();
     }
 
-    public Optional<Disciplina> findById (Long id) {
-        return repository.findById(id);
+    public Disciplina findById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
+    @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        try {
+            Disciplina disciplina = findById(id);
+            repository.delete(disciplina);
+            repository.flush();
+        }
+        catch (ResourceNotFoundException e){
+            throw e;
+        }
+        catch(DataIntegrityViolationException e){
+            throw new IntegrityException(id);
+        }
     }
 
-    public Disciplina alterar(Disciplina disciplina){
-        if(Objects.nonNull(disciplina.getId())){
-            disciplina = repository.save(disciplina);
-        }else{
-            throw new NotFoundException();
-        }
-        return disciplina;
+    public List<Disciplina> findByProfessorId(Long professorId){
+        return repository.findByProfessorId(professorId);
+    }
+
+    public Disciplina update(Disciplina disciplina, Disciplina disciplinaUpdated) {
+        disciplina.setNome(disciplinaUpdated.getNome());
+        disciplina.setProfessor(disciplinaUpdated.getProfessor());
+
+        return repository.save(disciplina);
     }
 }

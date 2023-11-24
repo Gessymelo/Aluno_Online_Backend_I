@@ -2,48 +2,60 @@ package br.com.alunoonline.api.service;
 
 import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.repository.AlunoRepository;
-import lombok.extern.slf4j.Slf4j;
-
+import br.com.alunoonline.api.exceptions.IntegrityException;
+import br.com.alunoonline.api.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.NotFoundException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-@Slf4j
+import java.util.List;
+
+
 @Service
 public class AlunoService {
 
     @Autowired
     AlunoRepository repository; //* injentando dependancia do repository no service*/
 
-    public Aluno create(Aluno aluno) { //* cria um aluno*/
-        return repository.save(aluno);
 
+    @Transactional
+    public Aluno create(Aluno aluno){   //* cria um aluno*/
+        return this.repository.save(aluno);
     }
 
-    public List<Aluno> findall() { //* pesquisar por todos alunos*/
-        return repository.findAll();
+    public List<Aluno> findAll(){ //* pesquisar por todos alunos*/
+        return this.repository.findAll();
     }
 
-    public Optional<Aluno> findById(Long id) { //* pesquisar por um  alunos especifico*/
-        return repository.findById(id);
+    public Aluno findById(Long id){ //* pesquisar por um  alunos especifico*/
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
-    public void delete(Long id) { //* Deleta um aluno especifico*/
-        repository.deleteById(id);
-    }
-
-    public Aluno alterar(Aluno aluno){    //* Altera aluno especifico*/
-        if(Objects.nonNull(aluno.getId())){
-            aluno = repository.save(aluno);
-        }else{
-            throw new NotFoundException();
+    @Transactional
+    public void delete(Long id){  //* Deleta um aluno especifico*/
+        try {
+            Aluno aluno = findById(id);
+            repository.delete(aluno);
+            repository.flush();
         }
-        return aluno;
+        catch (ResourceNotFoundException e){
+            throw e;
+        }
+        catch(DataIntegrityViolationException e){
+            throw new IntegrityException(id);
+        }
     }
+    //Atualiza dados dos Aluno
+    public Aluno update(Aluno aluno, Aluno alunoUpdated) {
+        aluno.setNome(alunoUpdated.getNome());
+        aluno.setEmail(alunoUpdated.getEmail());
+        aluno.setCurso(alunoUpdated.getCurso());
+
+        return repository.save(aluno);
+    }
+
 
 
 }

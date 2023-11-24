@@ -1,8 +1,7 @@
 package br.com.alunoonline.api.controller;
 
-import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.model.Disciplina;
-import br.com.alunoonline.api.service.AlunoService;
+
 import br.com.alunoonline.api.service.DisciplinaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,50 +9,56 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/disciplina")
 public class DisciplinaController {
 
     @Autowired
-    DisciplinaService service;
+    private DisciplinaService service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Disciplina> create(@RequestBody Disciplina disciplina) {
+    public ResponseEntity<Disciplina> create(@RequestBody Disciplina disciplina){
         Disciplina disciplinaCreated = service.create(disciplina);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaCreated);
-
+        return ResponseEntity.status(201).body(disciplinaCreated);
     }
 
-    @PutMapping
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Disciplina> alterar(@RequestBody Disciplina disciplina){
-        disciplina = service.alterar(disciplina);
-        return ResponseEntity.ok(disciplina);
+    public ResponseEntity<List<Disciplina>> findAll(){
+        List<Disciplina> disciplinas = service.findAll();
+        return ResponseEntity.status(200).body(disciplinas);
     }
 
-    @GetMapping("/all")
+    @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Disciplina> findAll() {
-        return service.findall();
+    public ResponseEntity<Disciplina> findById(@PathVariable Long id){
+        return ResponseEntity.status(200).body(service.findById(id));
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus (HttpStatus.OK)
-    public Optional <Disciplina> findById (@PathVariable Long id) { return  service.findById(id); }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete (@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @PutMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody Disciplina disciplinaUpdated){
+        Disciplina disciplina = service.findById(id);
+        return ResponseEntity.status(200).body(service.update(disciplina, disciplinaUpdated));
+    }
 
-
-
+    @GetMapping(value = "/professor/{professorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Disciplina>> findByProfessorId(@PathVariable Long professorId){
+        List<Disciplina> disciplinas = service.findByProfessorId(professorId);
+        return ResponseEntity.status(200).body(disciplinas);
+    }
 
 
 }
+
