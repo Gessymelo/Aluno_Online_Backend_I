@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
 
+/* aqui irems fazere o tratamento e exessoes  */
+
 @ControllerAdvice
 public class ControllerExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
