@@ -42,7 +42,7 @@ public class AlunoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{idput}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody Aluno alunoUpdated){
         Aluno aluno = service.findById(id);
